@@ -1,0 +1,2 @@
+# Teszt_KID_TZ
+20261020 TZ
