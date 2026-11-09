@@ -5,7 +5,6 @@ const app = express();
 
 app.use(express.json());
 
-
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -13,7 +12,6 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME,
     port: process.env.DB_PORT
 });
-
 
 app.get("/termekek", async (req, res) => {
     try {
@@ -28,7 +26,6 @@ app.get("/termekek", async (req, res) => {
         res.status(500).json({ hiba: error.message });
     }
 });
-
 
 app.get("/termekek/elerheto", async (req, res) => {
     try {
@@ -99,12 +96,90 @@ app.get("/termekek/dragak", async (req, res) => {
     }
 });
 
+/* GET API a termékek olcsóbbak mint 10000 */
+app.get("/termekek/olcsok", async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT
+                nev,
+                ar,
+                keszlet
+            FROM termekek
+            WHERE ar < 10000
+            ORDER BY ar DESC
+        `);
+
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ hiba: error.message });
+    }
+});
+
+/* POST API Új termék hozzáadása */
+
+app.post("/termekek", async (req, res) => {
+    try {
+        const {
+            kategoria_id,
+            nev,
+            ar,
+            keszlet,
+            elerheto
+        } = req.body;
+
+        const [result] = await pool.query(`
+            INSERT INTO termekek
+            (kategoria_id, nev, ar, keszlet, elerheto)
+            VALUES (?, ?, ?, ?, ?)
+        `, [
+            kategoria_id,
+            nev,
+            ar,
+            keszlet,
+            elerheto
+        ]);
+
+        res.status(201).json({
+            uzenet: "A termék sikeresen létrehozva.",
+            ujId: result.insertId
+        });
+
+    } catch (error) {
+        res.status(500).json({ hiba: error.message });
+    }
+});
+
+/* DELETE API Termék törlése azonosító alapján */
+
+app.delete("/termekek/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const [result] = await pool.query(`
+            DELETE FROM termekek
+            WHERE id = ?
+        `, [id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                hiba: "A termék nem található."
+            });
+        }
+
+        res.json({
+            uzenet: "A termék sikeresen törölve."
+        });
+
+    } catch (error) {
+        res.status(500).json({ hiba: error.message });
+    }
+});
+
 app.use((req, res) => {
     res.status(404).json({
         hiba: "A végpont nem található."
     });
 });
-
 
 app.listen(process.env.PORT, () => {
     console.log(
