@@ -232,6 +232,45 @@ app.use((req, res) => {
     });
 });
 
+app.put("/kategoriak/:id", async (req, res) => {
+    try {
+        const { nev } = req.body;
+        const { id } = req.params;
+
+        const [result] = await pool.query(`
+            UPDATE kategoriak
+            SET nev = ?
+            WHERE id = ?
+        `, [nev, id]);
+
+        res.status(200).json({
+            uzenet: "A kategória sikeresen módosítva."
+        });
+
+    } catch (error) {
+        res.status(500).json({ hiba: error.message });
+    }
+});
+app.put("/termekek/:id", async (req, res) => {
+    try {
+        const { nev } = req.body;
+        const { id } = req.params;
+
+        const [result] = await pool.query(`
+            UPDATE termekek
+            SET nev = ?
+            WHERE id = ?
+        `, [nev, id]);
+
+        res.status(200).json({
+            uzenet: "A kategória sikeresen módosítva."
+        });
+
+    } catch (error) {
+        res.status(500).json({ hiba: error.message });
+    }
+});
+
 app.listen(process.env.PORT, () => {
     console.log(
         `Szerver fut: http://localhost:${process.env.PORT}`
