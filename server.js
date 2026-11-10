@@ -148,6 +148,32 @@ app.post("/termekek", async (req, res) => {
         res.status(500).json({ hiba: error.message });
     }
 });
+/* POST API új Kategória létrehozása */
+app.post("/kategoriak", async (req, res) => {
+    try {
+        const {
+           id,
+           nev
+        } = req.body;
+
+        const [result] = await pool.query(`
+            INSERT INTO kategoriak
+            (id, nev)
+            VALUES (?, ?)
+        `, [
+            id,
+            nev
+        ]);
+
+        res.status(201).json({
+            uzenet: "A Kategória sikeresen létrehozva.",
+            ujId: result.insertId
+        });
+
+    } catch (error) {
+        res.status(500).json({ hiba: error.message });
+    }
+});
 
 /* DELETE API Termék törlése azonosító alapján */
 
