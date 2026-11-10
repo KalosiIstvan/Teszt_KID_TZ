@@ -201,6 +201,31 @@ app.delete("/termekek/:id", async (req, res) => {
     }
 });
 
+/* DELETE API Kategória törlése id alapján */
+
+app.delete("/termekek/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const [result] = await pool.query(`
+            DELETE FROM kategoriak
+            WHERE id = ?
+        `, [id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                hiba: "A termék nem található."
+            });
+        }
+
+        res.json({
+            uzenet: "A termék sikeresen törölve."
+        });
+
+    } catch (error) {
+        res.status(500).json({ hiba: error.message });
+    }
+});
 app.use((req, res) => {
     res.status(404).json({
         hiba: "A végpont nem található."
