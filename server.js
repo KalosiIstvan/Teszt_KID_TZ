@@ -203,7 +203,7 @@ app.delete("/termekek/:id", async (req, res) => {
 
 /* DELETE API Kategória törlése id alapján */
 
-app.delete("/termekek/:id", async (req, res) => {
+app.delete("/kategoriak/:id", async (req, res) => {
     try {
         const { id } = req.params;
 
